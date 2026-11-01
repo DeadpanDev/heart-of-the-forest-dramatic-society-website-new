@@ -58,7 +58,20 @@ git push origin v2026.11.0
 
 The **Release** workflow builds a Docker image and pushes it to
 `ghcr.io/deadpandev/heart-of-the-forest-dramatic-society-website-new:<tag>`.
-Set that tag in Dokploy and deploy. To roll back, deploy an earlier tag.
+It then points the Dokploy app at that tag and deploys it, so a tag push is all a release needs.
+
+To roll back, set an earlier tag in Dokploy (Provider → Docker Image) and press Deploy.
+
+The deploy step uses these repository secrets (Settings → Secrets and variables → Actions → Secrets):
+
+| Secret | Value |
+| --- | --- |
+| `DOKPLOY_URL` | Dokploy dashboard address, e.g. `https://dokploy.example.com` |
+| `DOKPLOY_API_KEY` | API key from your Dokploy profile settings |
+| `DOKPLOY_APPLICATION_ID` | The ID at the end of the app's URL in Dokploy |
+| `GHCR_USERNAME`, `GHCR_PULL_TOKEN` | Only if the GHCR package is private: your GitHub username and a classic token with `read:packages` |
+
+If `DOKPLOY_URL` isn't set, the deploy step is skipped and you set the tag in Dokploy by hand.
 
 ## Environment variables
 
