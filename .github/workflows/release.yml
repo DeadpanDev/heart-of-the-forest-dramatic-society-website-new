@@ -16,6 +16,9 @@ jobs:
     #   aarch64 (ARM, e.g. CAX)  -> ubuntu-24.04-arm + linux/arm64
     #   x86_64  (Intel/AMD)      -> ubuntu-latest    + linux/amd64
     runs-on: ubuntu-latest
+    # The Dokploy secrets live in this GitHub environment
+    environment:
+      name: DOKPLOY
     env:
       PLATFORM: linux/amd64
     steps:
@@ -51,8 +54,8 @@ jobs:
           cache-to: type=gha,mode=max
 
       # Points the Dokploy app at the new tag, then deploys it.
-      # Needs repository secrets DOKPLOY_URL, DOKPLOY_API_KEY and
-      # DOKPLOY_APPLICATION_ID. Skipped if DOKPLOY_URL is not set.
+      # Needs secrets DOKPLOY_URL, DOKPLOY_API_KEY and DOKPLOY_APPLICATION_ID
+      # in the DOKPLOY environment. Skipped if DOKPLOY_URL is not set.
       # GHCR_USERNAME / GHCR_PULL_TOKEN are only needed if the package is private.
       - name: Deploy to Dokploy
         env:
