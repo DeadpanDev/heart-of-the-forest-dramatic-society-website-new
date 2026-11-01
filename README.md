@@ -62,7 +62,7 @@ It then points the Dokploy app at that tag and deploys it, so a tag push is all 
 
 To roll back, set an earlier tag in Dokploy (Provider → Docker Image) and press Deploy.
 
-The deploy step uses these repository secrets (Settings → Secrets and variables → Actions → Secrets):
+The deploy step uses these secrets, stored in the `DOKPLOY` environment (Settings → Environments → DOKPLOY):
 
 | Secret | Value |
 | --- | --- |
