@@ -50,6 +50,45 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # Points the Dokploy app at the new tag, then deploys it.
+      # Needs repository secrets DOKPLOY_URL, DOKPLOY_API_KEY and
+      # DOKPLOY_APPLICATION_ID. Skipped if DOKPLOY_URL is not set.
+      # GHCR_USERNAME / GHCR_PULL_TOKEN are only needed if the package is private.
+      - name: Deploy to Dokploy
+        env:
+          DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          DOKPLOY_APPLICATION_ID: ${{ secrets.DOKPLOY_APPLICATION_ID }}
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_PULL_TOKEN: ${{ secrets.GHCR_PULL_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if [ -z "$DOKPLOY_URL" ]; then
+            echo "::notice::DOKPLOY_URL not set, skipping deploy. Set ${IMAGE}:${TAG} in Dokploy by hand."
+            exit 0
+          fi
+          api="${DOKPLOY_URL%/}/api"
+
+          if [ -n "$GHCR_PULL_TOKEN" ]; then
+            provider=$(jq -n --arg id "$DOKPLOY_APPLICATION_ID" --arg img "${IMAGE}:${TAG}" \
+              --arg user "$GHCR_USERNAME" --arg pass "$GHCR_PULL_TOKEN" \
+              '{applicationId: $id, dockerImage: $img, registryUrl: "ghcr.io", username: $user, password: $pass}')
+          else
+            provider=$(jq -n --arg id "$DOKPLOY_APPLICATION_ID" --arg img "${IMAGE}:${TAG}" \
+              '{applicationId: $id, dockerImage: $img, registryUrl: null, username: null, password: null}')
+          fi
+
+          echo "Setting image to ${IMAGE}:${TAG}"
+          curl -sS --fail-with-body -X POST "$api/application.saveDockerProvider" \
+            -H "x-api-key: $DOKPLOY_API_KEY" -H "Content-Type: application/json" \
+            -d "$provider"
+
+          echo "Deploying"
+          curl -sS --fail-with-body -X POST "$api/application.deploy" \
+            -H "x-api-key: $DOKPLOY_API_KEY" -H "Content-Type: application/json" \
+            -d "$(jq -n --arg id "$DOKPLOY_APPLICATION_ID" --arg t "Release $TAG" \
+              '{applicationId: $id, title: $t}')"
+
       - name: Keep only the 5 newest images
         uses: actions/delete-package-versions@v5
         with:
