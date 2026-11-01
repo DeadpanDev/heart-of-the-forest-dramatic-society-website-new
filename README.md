@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Heart of the Forest Dramatic Society
 
-## Getting Started
+Website for the Heart of the Forest Dramatic Society, a community panto charity group.
 
-First, run the development server:
+Built with Next.js, Tailwind CSS and shadcn/ui. Hosted on our own server with Dokploy.
+
+## Run it locally
+
+You need Node.js 24 (`nvm use` picks it up from `.nvmrc`).
 
 ```bash
+cp .env.example .env.local   # then fill in the values
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Before pushing, run the same checks as CI:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run lint
+npm run build
+```
 
-## Learn More
+## Branches
 
-To learn more about Next.js, take a look at the following resources:
+- `main` is always deployable. Changes reach it only through pull requests.
+- Work on a short-lived branch named by type:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Prefix | For |
+| --- | --- |
+| `feat/` | New pages or features |
+| `fix/` | Bug fixes |
+| `content/` | Show listings, text and photo updates |
+| `chore/` | Dependencies, config, tidying |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+git checkout main && git pull
+git checkout -b content/spring-panto
+# ...make changes, commit...
+git push -u origin content/spring-panto
+```
 
-## Deploy on Vercel
+Open a pull request, wait for the **build** check to pass, then squash-merge.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Releases
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Merging to `main` does not change the live site. Pushing a tag does.
+
+Tags use the date: `vYYYY.MM.N`, e.g. `v2026.11.0`, then `v2026.11.1` for the next release that month.
+
+```bash
+git checkout main && git pull
+git tag v2026.11.0
+git push origin v2026.11.0
+```
+
+The **Release** workflow builds a Docker image and pushes it to
+`ghcr.io/deadpandev/heart-of-the-forest-dramatic-society-website-new:<tag>`.
+Set that tag in Dokploy and deploy. To roll back, deploy an earlier tag.
+
+## Environment variables
+
+| Variable | Where it's set | Notes |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | GitHub → Settings → Secrets and variables → Actions → Variables | Baked in at build time |
+
+`NEXT_PUBLIC_*` values are built into the image. Each one needs a GitHub repository
+variable, an `ARG` + `ENV` pair in the `Dockerfile`, and an entry in both workflows.
+
+Server-only secrets go in Dokploy → Environment. Never commit secrets; `.env*.local` is ignored by Git.
