@@ -50,8 +50,9 @@ jobs:
           sbom: false
           build-args: |
             NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # No build cache: GitHub caches are scoped per tag, so a release
+          # can never reuse the previous release's cache, and saving one
+          # took ~2 minutes per run for no benefit.
 
       # Points the Dokploy app at the new tag, then deploys it.
       # Needs secrets DOKPLOY_URL, DOKPLOY_API_KEY and DOKPLOY_APPLICATION_ID

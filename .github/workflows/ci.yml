@@ -2,8 +2,12 @@ name: CI
 
 # Runs on every pull request into main. The job name "build" is the
 # status check you require in the main branch ruleset.
+# Also runs on pushes to main so the npm cache is saved on main,
+# where every PR can reuse it (PR caches can't be shared between PRs).
 on:
   pull_request:
+    branches: [main]
+  push:
     branches: [main]
   workflow_dispatch:
 
