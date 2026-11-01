@@ -124,6 +124,13 @@
     @apply border-border outline-ring/50;
   }
 
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading;
+  }
+
   body {
     @apply antialiased bg-background text-foreground;
     font-feature-settings:

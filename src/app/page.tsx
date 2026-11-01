@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Logo from "@/public/logo.jpg";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 export default function Home() {
   const fb = "https://www.facebook.com/heartoftheforestdramaticsociety";
@@ -27,7 +26,7 @@ export default function Home() {
 
         <Button
           asChild
-          className="bg-primary text-primary-foreground hover:bg-primary/90 px-3 font-semibold shadow-md shadow-primary/50 hover:shadow-lg hover:shadow-primary/50 transition-all duration-300"
+          className="mt-4 px-3 font-semibold shadow-md shadow-primary/50 hover:shadow-lg hover:shadow-primary/50 transition-all duration-300"
         >
           <a href={fb} target="_blank" rel="noopener noreferrer">
             Visit Our Facebook Page
